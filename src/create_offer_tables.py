@@ -54,21 +54,22 @@ def generate_offers(filename: str) -> None:
 
         cur.execute(
             """
+            DROP TABLE IF EXISTS public.sku;
             CREATE TABLE IF NOT EXISTS public.sku (
                 uuid UUID,
                 marketplace_id INTEGER,
                 product_id BIGINT,
-                title TEXT,
-                description TEXT,
+                title VARCHAR(1000),
+                description VARCHAR(10000),
                 brand INTEGER,
                 seller_id INTEGER,
-                seller_name TEXT,
-                first_image_url TEXT,
+                seller_name VARCHAR(100),
+                first_image_url VARCHAR(1000),
                 category_id INTEGER,
-                category_lvl_1 TEXT,
-                category_lvl_2 TEXT,
-                category_lvl_3 TEXT,
-                category_remaining TEXT,
+                category_lvl_1 VARCHAR(100),
+                category_lvl_2 VARCHAR(100),
+                category_lvl_3 VARCHAR(100),
+                category_remaining VARCHAR(100),
                 features JSON,
                 rating_count INTEGER,
                 rating_value DOUBLE PRECISION,
@@ -79,7 +80,7 @@ def generate_offers(filename: str) -> None:
                 sales INTEGER,
                 inserted_at TIMESTAMP DEFAULT NOW(),
                 updated_at TIMESTAMP DEFAULT NOW(),
-                currency TEXT,
+                currency VARCHAR(10),
                 barcode BIGINT[]
             );
             CREATE INDEX IF NOT EXISTS sku_brand_index ON public.sku (brand);
@@ -88,7 +89,6 @@ def generate_offers(filename: str) -> None:
             CREATE UNIQUE INDEX IF NOT EXISTS sku_uuid_uindex ON public.sku (uuid);""".strip()
         )
 
-        counter = 0
         dct = offer_info
         seller_name = None
         seller_id = None
@@ -103,7 +103,7 @@ def generate_offers(filename: str) -> None:
                 barcode = [int(i) for i in elem.itertext() if i]
                 dct["barcode"] = barcode
             elif elem.tag == "description" and dct.get("product_id"):
-                dct["description"] = elem.text
+                dct["description"] = elem.text[:10000]
             elif elem.tag == "categoryId" and dct.get("product_id"):
                 dct["category_id"] = int(elem.text)
                 other_categories = parse_categories(dct["category_id"])
@@ -122,9 +122,14 @@ def generate_offers(filename: str) -> None:
                 dct["first_image_url"] = elem.text
             elif elem.tag == "vendor" and dct.get("product_id"):
                 dct["brand"] = insert_or_get_vendor_id(elem.text)
-                dct["discount"] = round(dct.get("price_before_discounts") - dct.get("price_after_discounts"), 2)
+                dct["discount"] = (
+                    round(dct.get("price_before_discounts") - dct.get("price_after_discounts"), 2)
+                    if (dct.get("price_before_discounts") and dct.get("price_after_discounts"))
+                    else None
+                )
                 dct["uuid"] = uuid.uuid4().hex
                 dct["features"] = json.dumps(dct.get("features", {}), ensure_ascii=False)
+                dct["features"] = None if len(dct["features"]) > 1000 else dct["features"]
                 dct["seller_name"] = seller_name
                 dct["seller_id"] = seller_id
                 insert_query = """
@@ -140,10 +145,7 @@ def generate_offers(filename: str) -> None:
                             %(rating_count)s, %(rating_value)s, %(price_before_discounts)s, %(discount)s,
                             %(price_after_discounts)s, %(bonuses)s, %(sales)s, %(currency)s, %(barcode)s)"""
                 cur.execute(insert_query, dct)
-                counter += 1
-                if counter == 10:
-                    conn.commit()
-                    counter = 0
+                conn.commit()
                 dct = offer_info
             else:
                 continue
