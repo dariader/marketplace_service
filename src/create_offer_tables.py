@@ -53,32 +53,41 @@ def generate_offers(filename: str) -> None:
         cur = conn.cursor()
 
         cur.execute(
-            """CREATE TABLE IF NOT EXISTS public.sku ( uuid UUID, marketplace_id INTEGER, product_id BIGINT,
-            title TEXT, description TEXT, brand INTEGER, seller_id INTEGER, seller_name TEXT, first_image_url TEXT,
-            category_id INTEGER, category_lvl_1 TEXT, category_lvl_2 TEXT, category_lvl_3 TEXT, category_remaining
-            TEXT, features JSON, rating_count INTEGER, rating_value DOUBLE PRECISION, price_before_discounts REAL,
-            discount DOUBLE PRECISION, price_after_discounts REAL, bonuses INTEGER, sales INTEGER, inserted_at
-            TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW(), currency TEXT, barcode BIGINT[] ) ; comment
-            on column public.sku.uuid is 'id товара в нашей бд'; comment on column public.sku.marketplace_id is 'id
-            маркетплейса'; comment on column public.sku.product_id is 'id товара в маркетплейсе'; comment on column
-            public.sku.title is 'название товара'; comment on column public.sku.description is 'описание товара';
-            comment on column public.sku.category_lvl_1 is 'Первая часть категории товара. Например, для товара,
-            находящегося по пути Детям/Электроника/Детская электроника/Игровая консоль/Игровые консоли и игры/Игровые
-            консоли, в это поле запишется "Детям".'; comment on column public.sku.category_lvl_2 is 'Вторая часть
-            категории товара. Например, для товара, находящегося по пути Детям/Электроника/Детская
-            электроника/Игровая консоль/Игровые консоли и игры/Игровые консоли, в это поле запишется "Электроника".';
-            comment on column public.sku.category_lvl_3 is 'Третья часть категории товара. Например, для товара,
-            находящегося по пути Детям/Электроника/Детская электроника/Игровая консоль/Игровые консоли и игры/Игровые
-            консоли, в это поле запишется "Детская электроника".'; comment on column public.sku.category_remaining is
-            'Остаток категории товара. Например, для товара, находящегося по пути Детям/Электроника/Детская
-            электроника/Игровая консоль/Игровые консоли и игры/Игровые консоли, в это поле запишется "Игровая
-            консоль/Игровые консоли и игры/Игровые консоли".'; comment on column public.sku.features is
-            'Характеристики товара'; comment on column public.sku.rating_count is 'Кол-во отзывов о товаре'; comment
-            on column public.sku.rating_value is 'Рейтинг товара (0-5)'; comment on column public.sku.barcode is
-            'Штрихкод'; create index sku_brand_index on public.sku (brand); create unique index
-            sku_marketplace_id_sku_id_uindex on public.sku (marketplace_id, product_id); create unique index
-            sku_uuid_uindex on public.sku (uuid);"""
+            """
+            CREATE TABLE IF NOT EXISTS public.sku (
+                uuid UUID,
+                marketplace_id INTEGER,
+                product_id BIGINT,
+                title TEXT,
+                description TEXT,
+                brand INTEGER,
+                seller_id INTEGER,
+                seller_name TEXT,
+                first_image_url TEXT,
+                category_id INTEGER,
+                category_lvl_1 TEXT,
+                category_lvl_2 TEXT,
+                category_lvl_3 TEXT,
+                category_remaining TEXT,
+                features JSON,
+                rating_count INTEGER,
+                rating_value DOUBLE PRECISION,
+                price_before_discounts REAL,
+                discount DOUBLE PRECISION,
+                price_after_discounts REAL,
+                bonuses INTEGER,
+                sales INTEGER,
+                inserted_at TIMESTAMP DEFAULT NOW(),
+                updated_at TIMESTAMP DEFAULT NOW(),
+                currency TEXT,
+                barcode BIGINT
+            );
+            CREATE INDEX IF NOT EXISTS sku_brand_index ON public.sku (brand);
+            CREATE UNIQUE INDEX IF NOT EXISTS sku_marketplace_id_sku_id_uindex
+            ON public.sku (marketplace_id, product_id);
+            CREATE UNIQUE INDEX IF NOT EXISTS sku_uuid_uindex ON public.sku (uuid);""".strip()
         )
+
         counter = 0
         dct = offer_info
         seller_name = None
