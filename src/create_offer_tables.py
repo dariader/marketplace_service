@@ -80,7 +80,7 @@ def generate_offers(filename: str) -> None:
                 inserted_at TIMESTAMP DEFAULT NOW(),
                 updated_at TIMESTAMP DEFAULT NOW(),
                 currency TEXT,
-                barcode BIGINT
+                barcode BIGINT[]
             );
             CREATE INDEX IF NOT EXISTS sku_brand_index ON public.sku (brand);
             CREATE UNIQUE INDEX IF NOT EXISTS sku_marketplace_id_sku_id_uindex
