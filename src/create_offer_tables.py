@@ -100,7 +100,7 @@ def generate_offers(filename: str) -> None:
                 offer_id = elem.get("id")
                 dct["product_id"] = offer_id
             elif elem.tag == "barcode" and dct.get("product_id"):
-                barcode = [int(i) for i in elem.itertext() if i]
+                barcode = [int(i) if len(i) < 15 else None for i in elem.itertext()]
                 dct["barcode"] = barcode
             elif elem.tag == "description" and dct.get("product_id"):
                 dct["description"] = elem.text[:10000] if elem.text else None
