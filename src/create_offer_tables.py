@@ -103,7 +103,7 @@ def generate_offers(filename: str) -> None:
                 barcode = [int(i) for i in elem.itertext() if i]
                 dct["barcode"] = barcode
             elif elem.tag == "description" and dct.get("product_id"):
-                dct["description"] = elem.text[:10000]
+                dct["description"] = elem.text[:10000] if elem.text else None
             elif elem.tag == "categoryId" and dct.get("product_id"):
                 dct["category_id"] = int(elem.text)
                 other_categories = parse_categories(dct["category_id"])
