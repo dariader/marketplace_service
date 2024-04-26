@@ -11,7 +11,7 @@ from xml.etree.ElementTree import iterparse
 
 import psycopg2
 
-from config import HOST, USER, PASSWORD, DATABASE
+from config import DATABASE, HOST, PASSWORD, USER
 from src.create_seller_table import insert_or_get_seller_id
 from src.create_vendor_table import insert_or_get_vendor_id
 from src.utils import parse_categories
@@ -92,6 +92,7 @@ def generate_offers(filename: str) -> None:
         dct = offer_info
         seller_name = None
         seller_id = None
+        counter = 0
         for _, elem in iterparse(source=filename, events=("end",)):
             if elem.tag == "company":
                 seller_name = elem.text  # it is a single value, Yandex
@@ -145,7 +146,10 @@ def generate_offers(filename: str) -> None:
                             %(rating_count)s, %(rating_value)s, %(price_before_discounts)s, %(discount)s,
                             %(price_after_discounts)s, %(bonuses)s, %(sales)s, %(currency)s, %(barcode)s)"""
                 cur.execute(insert_query, dct)
-                conn.commit()
+                counter += 1
+                if counter > 100:
+                    conn.commit()
+                    counter = 0
                 dct = offer_info
             else:
                 continue
