@@ -130,7 +130,9 @@ def generate_offers(filename: str) -> None:
                 )
                 dct["uuid"] = uuid.uuid4().hex
                 dct["features"] = json.dumps(dct.get("features", {}), ensure_ascii=False)
-                dct["features"] = None if len(dct["features"]) > 1000 else dct["features"]
+                dct["features"] = (
+                    json.dumps({"error": "Parsing error"}) if len(dct["features"]) > 1000 else dct["features"]
+                )
                 dct["seller_name"] = seller_name
                 dct["seller_id"] = seller_id
                 insert_query = """

@@ -71,7 +71,7 @@ Notes regarding fields:
 2. Could not find `rating_count`, `rating_value` information in the table
 3. `discount` value can be measured in absolute values or in percents. Some values are negative (price_after_discount is larger that price_before_discount). Bug?
 4. Could not find `bonuses` and `sales` fields also. Should they be derived from description?
-5. Field with barcode is different from what is set in the schema. In some cases it may contain a set of values, meaning the type of field is bigint[] not bigint. There's no solutions which will preserve both schema and data, so I decided to change bigint to bigint[]. Motivation - it is not clear which relationship this field holds with product id, and it is not clear how this filed is parsed in the consequents steps. 
+5. Field with barcode is different from what is set in the schema. In some cases it may contain a set of values, meaning the type of field is bigint[] not bigint. There's no solutions which will preserve both schema and data, so I decided to change bigint to bigint[]. Motivation - it is not clear which relationship this field holds with product id, and it is not clear how this filed is parsed in the consequents steps.
 
 Notes regarding SQL expressions:
 1. To be fixed: Expression for generation of id of venfor and seller must utilise RETURNING statement.
@@ -81,3 +81,8 @@ Notes regarding code
 2. configurations are stored in config.py, which I guess is ok for a project
 3. some tests will be useful ( I left small dataset - temp_data.xml - for the purpose of testing)
 4. linters could be stricter :-)
+
+QC procedures:
+1. `barcode` length < 15 numbers (AFAIK typical barcode is 12-13 chars long)
+2. `features` field is restricted to 1000 characters, else {"error": "Parsing error"}
+3. changed text type to varchar to control the size of the data
